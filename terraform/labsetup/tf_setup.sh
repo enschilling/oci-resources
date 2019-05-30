@@ -20,7 +20,7 @@ mkdir -p tflab
 tenancy_id=$(oci iam compartment list --all --raw-output --query 'data[*]|[0]."compartment-id"')
 
 command cat >~/tflab/tftest.tf <<'EOF'
-variable "tenancy_id" {}
+variable "tenancy_ocid" {}
 variable "user_ocid" {}
 variable "fingerprint" {}
 variable "private_key_path" {}
@@ -65,9 +65,9 @@ echo
 echo
 echo Next Steps:
 echo
-echo 1 - cd into the subdirectory tftest created by the tfinstaller script - this contains the tftest.tf and env-vars files
+echo 1 - cd into the subdirectory tflab created by the tfinstaller script - this contains the tftest.tf and env-vars files
 echo
-echo cd tftest
+echo cd tflab
 echo
 echo 2 - Review env-vars file to ensure all of the correct values.
 echo      Youw will not need to add / change anything unless you notice missing values.
