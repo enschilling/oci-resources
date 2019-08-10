@@ -29,7 +29,7 @@ fi
 
 if [ -z "$REGION" ]
 then 
-  regList=($(oci iam region-subscription list --profile ociobtemea --query 'data[*]."region-name"' | sed s'/[\[",]//g' | sed -e 's/\]//g'))
+  regList=($(oci iam region-subscription list --profile $PROFILE --query 'data[*]."region-name"' | sed s'/[\[",]//g' | sed -e 's/\]//g'))
 else
   regList=$REGION
 fi
@@ -63,6 +63,17 @@ else
 for r in "${regList[@]}"; do
   echo "Region: " $r
 
+#Delete compute instances
+    echo "Deleting compute instances" && sleep 3
+    instID=($(oci search resource structured-search --profile $PROFILE --region $r --query-text "QUERY instance resources where lifeCycleState = 'RUNNING'" --query 'data.items[*].identifier' | sed s'/[\[",]//g' | sed -e 's/\]//g'))
+    #printf '%s\n' "${instID[@]}"
+      for i in "${instID[@]}"; do
+        counter=$((counter+1))
+        echo "Deleting resource with ID: $i"
+        oci compute instance terminate --profile $PROFILE --region $r --instance-id $i --force
+      done
+      echo "Compute instances in $r have been deleted.  Moving on..." && echo && echo "=====" && echo
+
 #Delete block volumes
     echo "Deleting block volumes" && sleep 3
     bvID=($(oci search resource structured-search --profile $PROFILE --region $r --query-text "QUERY volume resources" --query 'data.items[?contains(`["AVAILABLE", "UNAVAILABLE"]`, "lifecycle-state")].identifier' | sed s'/[\[",]//g' | sed -e 's/\]//g'))
@@ -94,6 +105,24 @@ for r in "${regList[@]}"; do
         oci db autonomous-database delete --profile $PROFILE --region $r --autonomous-database-id $i --force
       done
       echo "Autonomous Database Instances in $r have been deleted.  Moving on..." && echo && echo "=====" && echo
+
+#Empty and delete object storage buckets
+    echo "Empty and delete object storage buckets" && sleep 3
+    bID=($(oci search resource structured-search --profile $PROFILE --region $r --query-text "QUERY bucket resources" --query 'data.items[?contains("display-name", `#`) == `false`]."display-name"' | sed s'/[\[",]//g' | sed -e 's/\]//g'))
+    for i in "${bID[@]}"; do
+      counter=$((counter+1))
+      echo "Deleting resource with ID: $i"
+      oci os object bulk-delete --profile $PROFILE --region $r -bn $i --force
+      # Delete all pre-authenticated requests
+      parID=($(oci os preauth-request list --profile $PROFILE --region $r -bn $i --query 'data[*].id' | sed s'/[\[",]//g' | sed -e 's/\]//g'))
+	for p in "${parID[@]}"; do
+	  oci os preauth-request delete --profile $PROFILE --region $r -bn $i --par-id $p --force
+  	done
+      oci os bucket delete --profile $PROFILE --region $r -bn $i --force
+    done
+    echo "All object storage buckets have been deleted.  Moving on..." && echo && echo "=====" && echo
+
+## End of primary FOR loop
   done
 fi
 

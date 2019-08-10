@@ -1,0 +1,61 @@
+{
+	"compartment-id": "ocid1.compartment.oc1..aaaaaaaav4x6vgcs757ijx7nwyun773mqqlq3p5xmictf2xfnc6k7z25pu3q",
+	"deferred-fields": [
+		"instanceDetails.blockVolumes[0].createDetails.availabilityDomain",
+		"instanceDetails.launchDetails.availabilityDomain",
+		"instanceDetails.launchDetails.createVnicDetails.subnetId"
+	],
+	"defined-tags": {},
+	"display-name": "SampleConfig",
+	"freeform-tags": {},
+	"instanceDetails": {
+		"block-volumes": [{
+			"attach-details": {
+				"display-name": "volumeattachment20190612142251",
+				"is-read-only": false,
+				"type": "paravirtualized"
+			},
+			"create-details": {
+				"availability-domain": null,
+				"backup-policy-id": null,
+				"compartment-id": "ocid1.compartment.oc1..aaaaaaaav4x6vgcs757ijx7nwyun773mqqlq3p5xmictf2xfnc6k7z25pu3q",
+				"defined-tags": null,
+				"display-name": "BVG-D01_cloned_20190611_211157",
+				"freeform-tags": null,
+				"size-in-gbs": 500,
+				"source-details": null
+			},
+			"volume-id": null
+		}],
+		"instanceType": "compute",
+		"launch-details": {
+			"availability-domain": null,
+			"compartment-id": "ocid1.compartment.oc1..aaaaaaaav4x6vgcs757ijx7nwyun773mqqlq3p5xmictf2xfnc6k7z25pu3q",
+			"create-vnic-details": {
+				"assign-public-ip": true,
+				"display-name": "PHX-SRV",
+				"hostname-label": null,
+				"private-ip": null,
+				"skip-source-dest-check": false,
+				"subnet-id": null
+			},
+			"defined-tags": null,
+			"display-name": "PHX-SRV",
+			"extended-metadata": null,
+			"fault-domain": null,
+			"freeform-tags": null,
+			"ipxe-script": null,
+			"metadata": {
+				"ssh_authorized_keys": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDEU3ni+F/K5HwQyUZ6D5qhZOFDKni1MLSx6de0CfP+ktjiHsQSXeL5vkhY5hzmGtQRIhyviP3hA0RiKGrzS0Tw0N/FLMEs92Ztff47Wus7TuFJolDvFOQ9Dfun2VzPosDN7hK0iJMMGG5wkvjlZi4VUeqFYYv+6X6nFzjLgfmAreQCxijTyDDU8oJj9YoVlLD3DNKqW8Od8PaRYtfsbBWDIgKm7Dh6TAOOmoUtAZpItPtkQ8VWZOMpmX/ixfHuP8zy8+KZxZ4J4qbkLlFzFPdumznProa7AmsHyn71VdjJMMs9QWkn72aftaOOmzSsP04e+kKUd1f+qa22BHWISwQp enschill@ENSCHILL-LAP",
+				"user_data": "dW5kZWZpbmVk"
+			},
+			"shape": "VM.Standard2.1",
+			"source-details": {
+				"boot-volume-size-in-gbs": null,
+				"imageId": "ocid1.image.oc1.phx.aaaaaaaa6fy4rewjwz2kanrc47fnei5xhfsrpmei2fwfepff3drzmsexznpq",
+				"sourceType": "image"
+			}
+		},
+		"secondary-vnics": null
+	}
+}
