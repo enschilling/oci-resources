@@ -209,25 +209,25 @@ resource "oci_identity_ui_password" "training_user_passwords_yyz" {
 
 output "User_passwords_phx" {
   sensitive = false
-  value = "${concat(oci_identity_user.training_users_phx.*.name,oci_identity_ui_password.training_user_passwords_phx.*.password)}"
+  value = "${formatlist("%s!, %s!", oci_identity_user.training_users_phx.*.name,oci_identity_ui_password.training_user_passwords_phx.*.password)}"
 }
 
 output "User_passwords_iad" {
   sensitive = false
-  value = "${concat(oci_identity_user.training_users_iad.*.name,oci_identity_ui_password.training_user_passwords_iad.*.password)}"
+  value = "${formatlist("%s!, %s!", oci_identity_user.training_users_iad.*.name,oci_identity_ui_password.training_user_passwords_iad.*.password)}"
 }
 
 output "User_passwords_lhr" {
   sensitive = false
-  value = "${concat(oci_identity_user.training_users_lhr.*.name,oci_identity_ui_password.training_user_passwords_lhr.*.password)}"
+  value = "${formatlist("%s!, %s!", oci_identity_user.training_users_lhr.*.name,oci_identity_ui_password.training_user_passwords_lhr.*.password)}"
 }
 
 output "User_passwords_fra" {
   sensitive = false
-  value = "${concat(oci_identity_user.training_users_fra.*.name,oci_identity_ui_password.training_user_passwords_fra.*.password)}"
+  value = "${formatlist("%s!, %s!", oci_identity_user.training_users_fra.*.name,oci_identity_ui_password.training_user_passwords_fra.*.password)}"
 }
 
 output "User_passwords_yyz" {
   sensitive = false
-  value = "${concat(oci_identity_user.training_users_yyz.*.name,oci_identity_ui_password.training_user_passwords_yyz.*.password)}"
+  value = "${formatlist("%s!, %s!", oci_identity_user.training_users_yyz.*.name,oci_identity_ui_password.training_user_passwords_yyz.*.password)}"
 }
