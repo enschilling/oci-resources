@@ -1,10 +1,10 @@
 resource "oci_core_instance" "frontend-01" {
   availability_domain = "${lookup(data.oci_identity_availability_domains.ADs.availability_domains[0],"name")}"
   compartment_id      = "${var.compartment_ocid}"
-  display_name        = "frontend-01"
+  display_name        = "frontend-${var.EnvType}-01"
   shape               = "${lookup(var.ComputeShape, var.EnvType)}"
   subnet_id           = "${oci_core_subnet.fe-sub.id}"
-  hostname_label      = "frontend-01"
+  hostname_label      = "frontend-${var.EnvType}-01"
 
   metadata = {
     ssh_authorized_keys = "${var.ssh_public_key}"
@@ -20,10 +20,10 @@ resource "oci_core_instance" "frontend-01" {
 resource "oci_core_instance" "frontend-02" {
   availability_domain = "${lookup(data.oci_identity_availability_domains.ADs.availability_domains[1],"name")}"
   compartment_id      = "${var.compartment_ocid}"
-  display_name        = "frontend-02"
+  display_name        = "frontend-${var.EnvType}-02"
   shape               = "${lookup(var.ComputeShape, var.EnvType)}"
   subnet_id           = "${oci_core_subnet.fe-sub.id}"
-  hostname_label      = "frontend-02"
+  hostname_label      = "frontend-${var.EnvType}-02"
 
   metadata = {
     ssh_authorized_keys = "${var.ssh_public_key}"
@@ -48,9 +48,7 @@ yum install -y httpd
 systemctl enable  httpd.service
 systemctl start  httpd.service
 echo '<html><head></head><body><pre><code>' > /var/www/html/index.html
-echo '<h2>'
-hostname >> /var/www/html/index.html
-echo '</h2>'
+echo "<h2>`hostname`</h2>" >> /var/www/html/index.html
 echo '' >> /var/www/html/index.html
 cat /etc/os-release >> /var/www/html/index.html
 echo '</code></pre></body></html>' >> /var/www/html/index.html
