@@ -26,7 +26,7 @@ for i in "${instanceIds[@]}"; do
 
   # Loop through all VNIC IDs found in VNIC-ATTACHMENT and locate public IPs
   for v in "${vnicAttach[@]}"; do
-    pubIps+=($(oci network vnic get --vnic-id $v --query 'data."public-ip"' --raw-output))
+    pubIps+=($(oci network vnic get --vnic-id $v --query 'data."public-ip"' --raw-output 2> /dev/null))
   done
 
   # Decide how to display the results depending on how many IP addresses we find
