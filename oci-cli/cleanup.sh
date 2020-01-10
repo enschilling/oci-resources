@@ -24,7 +24,7 @@ done
 
 if [ -z "$PROFILE" ]
 then
-  PROFILE="default"
+  PROFILE="DEFAULT"
 fi
 
 if [ -z "$REGION" ]
