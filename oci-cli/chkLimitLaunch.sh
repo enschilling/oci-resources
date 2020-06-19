@@ -29,8 +29,11 @@ else
 fi
 
 if [ -z "$CID" ]
-then 
-  CID="ocid1.compartment.oc1..aaaaaaaav4x6vgcs757ijx7nwyun773mqqlq3p5xmictf2xfnc6k7z25pu3q"
+then
+  echo "You did not enter a compartment OCID, grabbing the first one that we find"
+  CID=$(oci iam compartment list --query 'data[*]|[0]."compartment-id"' --raw-output)
+  echo "Using compartment OCID: $CID"
+  echo ""
 fi
 
 if [ -z "$SHAPE" ]
