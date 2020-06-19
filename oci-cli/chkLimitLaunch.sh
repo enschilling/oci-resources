@@ -41,13 +41,20 @@ then
   echo "You must specify a shape"
   exit
 else
-#  cmdShape=$(echo "${SHAPE,,}" | sed -e 's/\./-/g')-count
-cmdShape=$SHAPE
+  
+  getShape=$(echo "${SHAPE,,}")
+
+  if [[ $getShape == *"denseio2"* ]]; then setShape=$(echo $getShape | sed -e 's/denseio2/dense.io2/g')
+    else setShape=$getShape
+  fi
+
+useShape=$(echo "${setShape}" | sed -e 's/\./-/g')-count
+
 fi
 
-echo "oci limits resource-availability get --service-name compute -c $CID --limit-name $cmdShape --availability-domain $adName --query 'data.available' --raw-output"
+echo "oci limits resource-availability get --service-name compute -c $CID --limit-name $useShape --availability-domain $adName --query 'data.available' --raw-output"
 
-shapeUsage=$(oci limits resource-availability get --service-name compute -c $CID --limit-name $cmdShape --availability-domain $adName --query 'data.available' --raw-output)
+shapeUsage=$(oci limits resource-availability get --service-name compute -c $CID --limit-name $useShape --availability-domain $adName --query 'data.available' --raw-output)
 clear
 
 if [ -z "$shapeUsage" ]
