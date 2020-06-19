@@ -1,22 +1,32 @@
 #!/bin/bash
 
-usage="\n$(basename "$0") [-h] [-s SHAPE] [-c COMPARTMENT] -- launch new compute instance
+usage="\n$(basename "$0") [-h] [-s SHAPE] [-c COMPARTMENT] [-a AD] -- launch new compute instance
 \n
 \nwhere:
 \n -h show this help text
 \n -s define instance shape
 \n -c set compartment OCID
+\n -a choose AD (default is AD-1)
 \n"
 
-while getopts 'hs:c:' option; do
+while getopts 'hs:c:a:' option; do
   case "${option}" in
     h) echo -e $usage
         exit
         ;;
     s) SHAPE=${OPTARG};;
     c) CID=${OPTARG};;
+    a) AD=${OPTARG};;
   esac
 done
+
+if [ -z "$AD" ]
+then
+  adName=$(oci iam availability-domain list --query 'data[*]|[0].name' --raw-output)
+else
+  adNum="$(($AD - 1))"
+  adName=$(oci iam availability-domain list --query "data[*]|[${adNum}].name" --raw-output)
+fi
 
 if [ -z "$CID" ]
 then 
@@ -28,10 +38,13 @@ then
   echo "You must specify a shape"
   exit
 else
-  cmdShape=$(echo "${SHAPE,,}" | sed -e 's/\./-/g')-count
+#  cmdShape=$(echo "${SHAPE,,}" | sed -e 's/\./-/g')-count
+cmdShape=$SHAPE
 fi
 
-shapeUsage=$(oci limits resource-availability get --service-name compute -c $CID --limit-name $cmdShape --availability-domain nHRu:PHX-AD-1 --query 'data.available' --raw-output)
+echo "oci limits resource-availability get --service-name compute -c $CID --limit-name $cmdShape --availability-domain $adName --query 'data.available' --raw-output"
+
+shapeUsage=$(oci limits resource-availability get --service-name compute -c $CID --limit-name $cmdShape --availability-domain $adName --query 'data.available' --raw-output)
 clear
 
 if [ -z "$shapeUsage" ]
