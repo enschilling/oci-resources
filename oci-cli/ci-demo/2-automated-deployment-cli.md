@@ -35,7 +35,7 @@ View the list of availability domains in your designated region. We will be coll
 
     oci iam availability-domain list
 
-    ![Screenshot of: List of availability domains][2]
+![Screenshot of: List of availability domains][2]
 
 The command output is JSON so there are a few tricks we can use to easily capture the data we need. In another article, we'll delve further into the *--query* functionality of the CLI. For now, you can check out [Jmespath.org][3] if you're curious.
 
@@ -113,6 +113,7 @@ The result of a successful execution will be about a page and a half of JSON out
 ![Screenshot of: JSON command output][6]
 
 If you look near the end of the output you'll find a section for the *vnics* - and likely you'll find the value of the vnic-id to be null.  Don't fret! It takes a few seconds to provision that particular item.  And as luck would have it, we can find it easily.
+
 ![Screenshot of: Null vnic id value][7]
 
 In the JSON output from the command above, locate the **id** for the container instance and copy it (or store it in an environment variable). Then run:
@@ -120,7 +121,9 @@ In the JSON output from the command above, locate the **id** for the container i
     oci container-instances --container-instance get --container-instance-id <the id you coiped above>
 
 Now in the output you'll see an **id** for the vnic.
-![Screenshot of: Valid vnic id value][8] Copy that and use it to run one more command:
+![Screenshot of: Valid vnic id value][8] 
+
+Copy that and use it to run one more command:
 
     oci network vnic get --vnic-id <your vnic id>
 
