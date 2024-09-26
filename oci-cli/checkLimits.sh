@@ -65,7 +65,7 @@ for r in "${regList[@]}"; do
   #Get GPU-related resource names if a specific shape was not entered
   if [ -z "$SHAPE" ]
   then
-    shapeList=($(oci limits definition list --region $r -c $tenancyId --all --query 'data[?contains("service-name", `compute`)]|[?contains("description", `GPU`)]|[? !contains("name", `reserv`)].name' | sed s'/[\[",]//g' | sed -e 's/\]//g'))
+    shapeList=($(oci limits definition list --region $r -c $tenancyId --service-name compute --all --query 'data[?contains("description", `GPU`)]|[? !contains("name", `reserv`)].name' | sed s'/[\[",]//g' | sed -e 's/\]//g'))
   else
     shapeList=$SHAPE
   fi
