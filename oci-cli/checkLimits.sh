@@ -1,12 +1,13 @@
 #!/bin/bash
 
 
-usage="\n$(basename "$0") [-h] [-s SHAPE] [-r REGION] -- find available GPU capacity
+usage="\n$(basename "$0") [-h] [-s SHAPE] [-r REGION] [-o ORDER] -- find available GPU capacity
 \n
 \nwhere: 
 \n -h show this help text
-\n -s define instance shape
-\n -r specificy a single region to check
+\n -s define instance shape (e.g. VM.GPU.A10.1)
+\n -r specificy a single region to check (e.g. us-ashburn-1)
+\n -o specify order: ad = crawl availability domains | shape = display by shape
 \n
 \n **If a region is not specified, we will search all subscribed regions
 \n"
@@ -24,6 +25,7 @@ while getopts 'hs:r:' option; do
         ;;
     s) SHAPE=${OPTARG};;
     r) REGION=${OPTARG};;
+    o) ORDER=${OPTARG};;
   esac
 done
 
@@ -41,6 +43,12 @@ else
   regList=$REGION
 fi
 
+if [ -z "$ORDER" ]
+then
+  # default sort / group order is set to shape
+  ORDER="SHAPE"
+fi
+
 #Print details of the activity and prompt for confirmation
 clear
 echo -e "\n========================================================="
@@ -56,30 +64,69 @@ else
   exit 1
 fi
 
-for r in "${regList[@]}"; do
-  echo "Region: " $r
+start_time=$(date +%s)
 
-  #Get AD(s)
-  adList=($(oci iam availability-domain list --region $r --query 'data[*].name' | sed s'/[\[",]//g' | sed -e 's/\]//g'))
+case $ORDER in
 
-  #Get GPU-related resource names if a specific shape was not entered
-  if [ -z "$SHAPE" ]
-  then
-    shapeList=($(oci limits definition list --region $r -c $tenancyId --service-name compute --all --query 'data[?contains("description", `GPU`)]|[? !contains("name", `reserv`)].name' | sed s'/[\[",]//g' | sed -e 's/\]//g'))
-  else
-    shapeList=$SHAPE
-  fi
-  
-  for a in "${adList[@]}"; do
-    echo "AD name: " $a
+AD)
+    for r in "${regList[@]}"; do
+    echo "Region: " $r
 
-    for s in "${shapeList[@]}"; do
-      shapeCapacity=($(oci limits resource-availability get --region $r --service-name compute -c $tenancyId --limit-name $s --availability-domain $a --query 'data.available' --raw-output))
-      echo "Capacity for " $s ": " $shapeCapacity
+    #Get AD(s)
+    adList=($(oci iam availability-domain list --region $r --query 'data[*].name' | sed s'/[\[",]//g' | sed -e 's/\]//g'))
+
+    #Get GPU-related resource names if a specific shape was not entered
+    if [ -z "$SHAPE" ]
+    then
+        shapeList=($(oci limits definition list --region $r -c $tenancyId --service-name compute --all --query 'data[?contains("description", `GPU`)]|[? !contains("name", `reserv`)].name' | sed s'/[\[",]//g' | sed -e 's/\]//g'))
+    else
+        shapeList=$SHAPE
+    fi
+    
+    for a in "${adList[@]}"; do
+        echo "AD name: " $a
+
+        for s in "${shapeList[@]}"; do
+        shapeCapacity=($(oci limits resource-availability get --region $r --service-name compute -c $tenancyId --limit-name $s --availability-domain $a --query 'data.available' --raw-output))
+        echo "Capacity for " $s ": " $shapeCapacity
+        done
+
     done
 
-  done
+    echo " "
 
-  echo " "
+    done
+;;
 
-done
+SHAPE)
+    shapeList=($(oci limits definition list -c $tenancyId --service-name compute --all --query 'data[?contains("description", `GPU`)]|[? !contains("name", `reserv`)].name' | sed s'/[\[",]//g' | sed -e 's/\]//g'))
+
+    for s in "${shapeList[@]}"; do
+        echo "Capacity for shape: " $s
+        ((shapeCount++))
+
+        for r in "${regList[@]}"; do
+
+            ((regionCount++))
+
+            #Get AD(s)
+            adList=($(oci iam availability-domain list --region $r --query 'data[*].name' | sed s'/[\[",]//g' | sed -e 's/\]//g'))
+
+            for a in "${adList[@]}"; do
+                ((adCount++))
+                shapeCapacity=($(oci limits resource-availability get --region $r --service-name compute -c $tenancyId --limit-name $s --availability-domain $a --query 'data.available' --raw-output))
+                echo $s " available in " $a ": " $shapeCapacity
+            done
+        done
+        echo " --- "
+        echo ""
+    done
+;;
+
+esac
+
+end_time=$(date +%s)
+runtime=$((end_time - start_time))
+
+echo "Checked $shapeCount shapes in $adCount ADs across $regionCount regions."
+echo "Total script runtime: $runtime seconds."
